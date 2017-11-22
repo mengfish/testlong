@@ -1,0 +1,57 @@
+#!/bin/bash
+[[ -d `pwd`/logs ]] || mkdir `pwd`/logs
+
+log_out=`pwd`/logs
+
+start_time=$(date +%s) || date "+%Y-%m-%d %H:%M:%S" | tee -a  test.log
+
+sleep 2
+:<<!
+for ((i=1;i<=6350;i++ ))
+
+do
+	echo "+++++++++++++++count$i++++++++++++++++++" | tee -a  test.log 
+	echo "Start at `date '+%Y-%m-%d %H:%M:%S'` " | tee -a  test.log
+	./sample_multi_transcode -par  smt_stress.par  2>&1 | tee -a test.log
+	echo "This is your $i time to run case" | tee -a  test.log
+	echo "End at `date '+%Y-%m-%d %H:%M:%S'` " | tee -a  test.log
+	
+	echo "+++++++++++++++++++++++++++++++++" | tee -a  test.log 
+done
+!
+
+for ((i=1;i<=10;i++ ))
+do
+	echo "The test PASSED" | tee -a  test.log
+done
+echo "+++++++++++++++++++++++++++++++++" | tee -a  test.log
+
+echo -e "\n\n"
+
+for ((i=11;i<=12;i++ ))
+do
+        echo "The test FAILED" | tee -a  test.log
+done
+
+Total_run=$(zgrep -e "The test"  test.log | wc -l)
+Fail_run=$(zgrep -e "The test FAILED" test.log | wc -l) 
+Pass_run=$(($Total_run-Fail_run)) 
+
+echo "Total run $Total_run times, Pass times:$Pass_run, Fail times:$Fail_run." | tee -a  test.log
+
+if [ "$Pass_run" = "$Total_run" ]
+then
+	echo "Stress test pass." | tee -a  test.log 
+else
+
+	echo "Stress test fail." | tee -a  test.log
+fi
+
+end_time=$(date +%s) || date "+%Y-%m-%d %H:%M:%S" | tee -a  test.log
+
+spend_time=$(($end_time - start_time))
+
+duration=`echo "scale=5;$spend_time" | bc`
+
+echo "you spend  $duration s to run case" | tee -a test.log
+

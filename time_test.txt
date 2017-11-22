@@ -1,0 +1,19 @@
+#!/bin/bash
+[[ -d `pwd`/logs ]] || mkdir `pwd`/logs
+
+log_out=`pwd`/logs
+
+start_time=$(date +%s) || date "+%Y-%m-%d %H:%M:%S" 
+
+echo $start_time
+sleep 3
+end_time=$(date +%s) || date "+%Y-%m-%d %H:%M:%S" 
+
+echo $end_time
+spend_time=$(($end_time - start_time))
+
+echo $spend_time
+duration=`echo "scale=5;$spend_time/60/60" | bc`
+
+echo "you spend  $duration h to run case" | tee -a time.log
+
